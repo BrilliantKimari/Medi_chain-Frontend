@@ -1,20 +1,20 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
+import PatientPage from "./pages/PatientPage";
+import OfficerPage from "./pages/OfficerPage";
+import CaregiverPage from "./pages/CaregiverPage";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        {/* You can later add these pages */}
-        <Route path="/patient" element={<h2>Patient Dashboard</h2>} />
-        <Route path="/officer" element={<h2>Medical Officer Dashboard</h2>} />
-        <Route path="/caregiver" element={<h2>Caregiver Dashboard</h2>} />
+        <Route path="/patient" element={<PatientPage />} />
+        <Route path="/officer" element={<OfficerPage />} />
+        <Route path="/caregiver" element={<CaregiverPage />} />
       </Routes>
     </Router>
   );
 }
 
 export default App;
-
