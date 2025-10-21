@@ -1,41 +1,65 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { User, Stethoscope, Users, Hospital } from "lucide-react";
 
-const LandingPage = () => {
-  const navigate = useNavigate();
-
-  const handleEnter = (role) => {
-    // navigate to role-specific routes
-    navigate(`/${role}`);
-  };
-
+export default function LandingPage() {
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50 text-gray-800">
-      <h1 className="text-4xl font-bold mb-8 text-blue-600">Welcome to MediChain</h1>
-      <p className="mb-8 text-lg text-gray-600">Choose your role to continue:</p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-6 py-12">
+      {/* Header Section */}
+      <Hospital size={64} className="text-blue-600 mb-4" />
+      <h1 className="text-4xl font-bold text-blue-700 mb-3 text-center">
+        Welcome to MediChain
+      </h1>
+      <p className="text-gray-600 mb-10 text-center max-w-md">
+        A secure and connected healthcare platform for patients, medical officers,
+        and caregivers. Access and manage medical data seamlessly.
+      </p>
 
-      <div className="flex flex-col sm:flex-row gap-4">
-        <button
-          onClick={() => handleEnter("patient")}
-          className="px-6 py-3 bg-blue-500 text-white rounded-xl shadow hover:bg-blue-600 transition"
+      {/* Role Selection Cards */}
+      <div className="grid gap-6 md:grid-cols-3 w-full max-w-5xl">
+        {/* Patient Card */}
+        <Link
+          to="/patient"
+          className="flex flex-col items-center bg-gray-100 p-6 rounded-2xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all border border-gray-200"
         >
-          Enter as Patient
-        </button>
-        <button
-          onClick={() => handleEnter("officer")}
-          className="px-6 py-3 bg-green-500 text-white rounded-xl shadow hover:bg-green-600 transition"
+          <User size={48} className="text-blue-500 mb-3" />
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">
+            Enter as Patient
+          </h2>
+          <p className="text-gray-600 text-center">
+            Access your medical records, prescriptions, and manage your health
+            information.
+          </p>
+        </Link>
+
+        {/* Medical Officer Card */}
+        <Link
+          to="/officer"
+          className="flex flex-col items-center bg-gray-100 p-6 rounded-2xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all border border-gray-200"
         >
-          Enter as Medical Officer
-        </button>
-        <button
-          onClick={() => handleEnter("caregiver")}
-          className="px-6 py-3 bg-purple-500 text-white rounded-xl shadow hover:bg-purple-600 transition"
+          <Stethoscope size={48} className="text-green-500 mb-3" />
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">
+            Enter as Medical Officer
+          </h2>
+          <p className="text-gray-600 text-center">
+            View and update patient medical records, manage healthcare data.
+          </p>
+        </Link>
+
+        {/* Caregiver Card */}
+        <Link
+          to="/caregiver"
+          className="flex flex-col items-center bg-gray-100 p-6 rounded-2xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all border border-gray-200"
         >
-          Enter as Caregiver
-        </button>
+          <Users size={48} className="text-purple-500 mb-3" />
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">
+            Enter as Caregiver
+          </h2>
+          <p className="text-gray-600 text-center">
+            Manage prescriptions, set medication reminders, and track patient
+            progress.
+          </p>
+        </Link>
       </div>
     </div>
   );
-};
-
-export default LandingPage;
+}
