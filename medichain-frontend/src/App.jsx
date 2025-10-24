@@ -6,6 +6,7 @@ import OfficerPage from "./pages/OfficerPage";
 import CaregiverPage from "./pages/CaregiverPage";
 import MedicRegisterPage from "./pages/MedicRegisterPage";
 import MedicDashboardPage from "./pages/MedicDashboardPage";
+import MedicLoginPage from "./pages/MedicLoginPage";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/caregiver" element={<CaregiverPage />} />
         <Route path="/medic-register" element={<MedicRegisterPage />} />
         <Route path="medic-dashboard" element={<MedicDashboardPage />} />
+        <Route path="medic-login" element={<MedicLoginPage />} />
       </Routes>
     </Router>
   );
