@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 export default function MedicRegisterPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [specialization, setSpecialization] = useState("");
   const [medicalId, setMedicalId] = useState("");
   const [certificate, setCertificate] = useState("");
@@ -25,26 +26,29 @@ export default function MedicRegisterPage() {
   const handleRegister = (e) => {
     e.preventDefault();
 
-    // Save registration info temporarily (optional)
+    // Save registration info temporarily
     localStorage.setItem(
       "registeredMedic",
       JSON.stringify({
         fullName,
         email,
+        phoneNumber,
         specialization,
         medicalId,
         certificate,
       })
     );
 
-    alert("Registration complete! Please log in.");
+    alert("Registration complete! Please log in to continue.");
     localStorage.removeItem("verifiedMedic"); // clear temp verification
-    navigate("/officer"); // redirect to login/authentication
+    navigate("/medic-login"); // go to login page
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-blue-50 px-6 py-12">
-      <h1 className="text-3xl font-bold text-blue-700 mb-6">Medic Registration</h1>
+      <h1 className="text-3xl font-bold text-blue-700 mb-6">
+        Medic Registration
+      </h1>
 
       <form
         onSubmit={handleRegister}
@@ -61,9 +65,18 @@ export default function MedicRegisterPage() {
 
         <input
           type="email"
-          placeholder="Email"
+          placeholder="Email Address"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className="w-full border p-3 rounded-md"
+          required
+        />
+
+        <input
+          type="tel"
+          placeholder="Phone Number"
+          value={phoneNumber}
+          onChange={(e) => setPhoneNumber(e.target.value)}
           className="w-full border p-3 rounded-md"
           required
         />
@@ -83,9 +96,14 @@ export default function MedicRegisterPage() {
           className="w-full border p-3 rounded-md bg-gray-100"
         />
 
-        <p className="text-gray-600">
+        <p className="text-gray-600 text-sm">
           Certificate uploaded:{" "}
-          <a href={certificate} target="_blank" className="text-blue-600 underline">
+          <a
+            href={certificate}
+            target="_blank"
+            rel="noreferrer"
+            className="text-blue-600 underline"
+          >
             View
           </a>
         </p>
