@@ -130,9 +130,14 @@ export default function PrescriptionPage() {
   };
 
   const handleTakeDose = (id) => {
-    setPrescriptions(prescriptions.map(p =>
-      p.id === id && p.takenDoses < p.totalDoses ? { ...p, takenDoses: p.takenDoses + 1 } : p
-    ));
+    setPrescriptions(prescriptions.map(p => {
+      if (p.id === id && p.takenDoses < p.totalDoses) {
+        const newTakenDoses = p.takenDoses + 1;
+        const isCompleted = newTakenDoses >= p.totalDoses;
+        return { ...p, takenDoses: newTakenDoses, completed: isCompleted };
+      }
+      return p;
+    }));
   };
 
   return (
