@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Stethoscope, FileText } from "lucide-react";
+import { Stethoscope, FileText, Pill } from "lucide-react";
 
 export default function PatientDashboard() {
   return (
@@ -29,7 +29,7 @@ export default function PatientDashboard() {
           Welcome Back! Manage Your Health
         </h2>
 
-        <div className="grid gap-6 md:grid-cols-2 w-full max-w-3xl">
+        <div className="grid gap-6 md:grid-cols-3 w-full max-w-4xl">
           {/* Medical Records */}
           <Link
             to="/medical-records"
@@ -55,6 +55,20 @@ export default function PatientDashboard() {
             </h3>
             <p className="text-gray-600 text-center">
               Update and review operations, scans, and medical procedures.
+            </p>
+          </Link>
+
+          {/* Prescriptions */}
+          <Link
+            to="/prescriptions"
+            className="flex flex-col items-center bg-white p-8 rounded-2xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all border border-gray-200"
+          >
+            <Pill size={48} className="text-green-500 mb-3" />
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              Prescriptions
+            </h3>
+            <p className="text-gray-600 text-center">
+              View your current and past medication prescriptions.
             </p>
           </Link>
         </div>
