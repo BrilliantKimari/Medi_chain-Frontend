@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pill, Calendar, User, Plus, Edit, ArrowLeft, X, CheckCircle } from "lucide-react";
+import { Pill, Calendar, User, Plus, Edit, ArrowLeft, X, CheckCircle, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function PrescriptionPage() {
@@ -14,7 +14,9 @@ export default function PrescriptionPage() {
       prescribedBy: "Dr. Kamau",
       date: "2024-10-01",
       notes: "Take with food to avoid stomach upset.",
-      completed: false
+      completed: false,
+      takenDoses: 0,
+      totalDoses: 21
     },
     {
       id: 2,
@@ -25,7 +27,9 @@ export default function PrescriptionPage() {
       prescribedBy: "Dr. Njeri",
       date: "2024-09-15",
       notes: "For pain relief, not to exceed 4 tablets per day.",
-      completed: false
+      completed: false,
+      takenDoses: 0,
+      totalDoses: 40
     },
     {
       id: 3,
@@ -36,7 +40,9 @@ export default function PrescriptionPage() {
       prescribedBy: "Dr. Patel",
       date: "2024-08-20",
       notes: "Monitor blood sugar levels regularly.",
-      completed: true
+      completed: true,
+      takenDoses: 365,
+      totalDoses: 730
     }
   ]);
 
@@ -50,7 +56,9 @@ export default function PrescriptionPage() {
     prescribedBy: "",
     date: "",
     notes: "",
-    completed: false
+    completed: false,
+    takenDoses: 0,
+    totalDoses: 0
   });
 
   const handleAddPrescription = () => {
@@ -62,7 +70,9 @@ export default function PrescriptionPage() {
       prescribedBy: "",
       date: "",
       notes: "",
-      completed: false
+      completed: false,
+      takenDoses: 0,
+      totalDoses: 0
     });
     setShowModal(true);
   };
@@ -89,7 +99,10 @@ export default function PrescriptionPage() {
       duration: "",
       prescribedBy: "",
       date: "",
-      notes: ""
+      notes: "",
+      completed: false,
+      takenDoses: 0,
+      totalDoses: 0
     });
   };
 
@@ -104,13 +117,21 @@ export default function PrescriptionPage() {
       prescribedBy: "",
       date: "",
       notes: "",
-      completed: false
+      completed: false,
+      takenDoses: 0,
+      totalDoses: 0
     });
   };
 
   const handleMarkCompleted = (id) => {
     setPrescriptions(prescriptions.map(p =>
       p.id === id ? { ...p, completed: !p.completed } : p
+    ));
+  };
+
+  const handleTakeDose = (id) => {
+    setPrescriptions(prescriptions.map(p =>
+      p.id === id && p.takenDoses < p.totalDoses ? { ...p, takenDoses: p.takenDoses + 1 } : p
     ));
   };
 
@@ -269,6 +290,31 @@ export default function PrescriptionPage() {
                   <p className="text-gray-700"><strong>Dosage:</strong> {prescription.dosage}</p>
                   <p className="text-gray-700"><strong>Frequency:</strong> {prescription.frequency}</p>
                   <p className="text-gray-700"><strong>Duration:</strong> {prescription.duration}</p>
+
+                  {/* Progress Bar */}
+                  <div className="mt-3">
+                    <div className="flex justify-between text-sm text-gray-600 mb-1">
+                      <span>Progress: {prescription.takenDoses}/{prescription.totalDoses} doses</span>
+                      <span>{Math.round((prescription.takenDoses / prescription.totalDoses) * 100)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${Math.min((prescription.takenDoses / prescription.totalDoses) * 100, 100)}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {/* Take Dose Button */}
+                  {!prescription.completed && prescription.takenDoses < prescription.totalDoses && (
+                    <button
+                      onClick={() => handleTakeDose(prescription.id)}
+                      className="mt-3 bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 flex items-center gap-1 text-sm"
+                    >
+                      <Check size={14} />
+                      Take Dose
+                    </button>
+                  )}
                 </div>
                 <div>
                   <p className="text-gray-700 flex items-center gap-2">
