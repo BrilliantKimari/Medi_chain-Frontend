@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pill, Calendar, User, Plus, Edit, ArrowLeft, X } from "lucide-react";
+import { Pill, Calendar, User, Plus, Edit, ArrowLeft, X, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function PrescriptionPage() {
@@ -13,7 +13,8 @@ export default function PrescriptionPage() {
       duration: "7 days",
       prescribedBy: "Dr. Kamau",
       date: "2024-10-01",
-      notes: "Take with food to avoid stomach upset."
+      notes: "Take with food to avoid stomach upset.",
+      completed: false
     },
     {
       id: 2,
@@ -23,7 +24,8 @@ export default function PrescriptionPage() {
       duration: "10 days",
       prescribedBy: "Dr. Njeri",
       date: "2024-09-15",
-      notes: "For pain relief, not to exceed 4 tablets per day."
+      notes: "For pain relief, not to exceed 4 tablets per day.",
+      completed: false
     },
     {
       id: 3,
@@ -33,7 +35,8 @@ export default function PrescriptionPage() {
       duration: "Ongoing",
       prescribedBy: "Dr. Patel",
       date: "2024-08-20",
-      notes: "Monitor blood sugar levels regularly."
+      notes: "Monitor blood sugar levels regularly.",
+      completed: true
     }
   ]);
 
@@ -46,7 +49,8 @@ export default function PrescriptionPage() {
     duration: "",
     prescribedBy: "",
     date: "",
-    notes: ""
+    notes: "",
+    completed: false
   });
 
   const handleAddPrescription = () => {
@@ -57,7 +61,8 @@ export default function PrescriptionPage() {
       duration: "",
       prescribedBy: "",
       date: "",
-      notes: ""
+      notes: "",
+      completed: false
     });
     setShowAddForm(true);
   };
@@ -97,8 +102,15 @@ export default function PrescriptionPage() {
       duration: "",
       prescribedBy: "",
       date: "",
-      notes: ""
+      notes: "",
+      completed: false
     });
+  };
+
+  const handleMarkCompleted = (id) => {
+    setPrescriptions(prescriptions.map(p =>
+      p.id === id ? { ...p, completed: !p.completed } : p
+    ));
   };
 
   return (
@@ -224,17 +236,33 @@ export default function PrescriptionPage() {
         {/* Prescriptions List */}
         <div className="space-y-6">
           {prescriptions.map((prescription) => (
-            <div key={prescription.id} className="bg-gray-100 p-6 rounded-xl border border-gray-200 relative">
-              <button
-                onClick={() => handleEditPrescription(prescription)}
-                className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 flex items-center gap-1 text-sm"
-              >
-                <Edit size={14} />
-                Edit
-              </button>
-              <div className="grid md:grid-cols-2 gap-4">
+            <div key={prescription.id} className={`bg-gray-100 p-6 rounded-xl border border-gray-200 relative ${prescription.completed ? 'opacity-75' : ''}`}>
+              <div className="absolute top-4 right-4 flex gap-2">
+                <button
+                  onClick={() => handleEditPrescription(prescription)}
+                  className="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 flex items-center gap-1 text-sm"
+                >
+                  <Edit size={14} />
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleMarkCompleted(prescription.id)}
+                  className={`px-3 py-1 rounded-md flex items-center gap-1 text-sm ${
+                    prescription.completed
+                      ? 'bg-green-600 text-white hover:bg-green-700'
+                      : 'bg-gray-600 text-white hover:bg-gray-700'
+                  }`}
+                >
+                  <CheckCircle size={14} />
+                  {prescription.completed ? 'Completed' : 'Mark Complete'}
+                </button>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4 pr-48">
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-800 mb-2">{prescription.medication}</h2>
+                  <h2 className={`text-xl font-semibold mb-2 ${prescription.completed ? 'line-through text-gray-600' : 'text-gray-800'}`}>
+                    {prescription.medication}
+                    {prescription.completed && <span className="ml-2 text-green-600 text-sm">(Completed)</span>}
+                  </h2>
                   <p className="text-gray-700"><strong>Dosage:</strong> {prescription.dosage}</p>
                   <p className="text-gray-700"><strong>Frequency:</strong> {prescription.frequency}</p>
                   <p className="text-gray-700"><strong>Duration:</strong> {prescription.duration}</p>
