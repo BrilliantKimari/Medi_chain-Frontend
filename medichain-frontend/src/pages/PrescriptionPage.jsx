@@ -257,7 +257,7 @@ export default function PrescriptionPage() {
                   {prescription.completed ? 'Completed' : 'Mark Complete'}
                 </button>
               </div>
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid md:grid-cols-2 gap-4 pr-48">
                 <div>
                   <h2 className={`text-xl font-semibold mb-2 ${prescription.completed ? 'line-through text-gray-600' : 'text-gray-800'}`}>
                     {prescription.medication}
