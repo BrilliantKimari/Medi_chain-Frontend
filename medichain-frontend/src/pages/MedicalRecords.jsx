@@ -1,4 +1,5 @@
-import { FileText, User, Activity, FlaskConical, Eye } from "lucide-react";
+import { FileText, User, Activity, FlaskConical, Eye, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function MedicalRecords() {
   // Placeholder data (you’ll later replace this with API data)
@@ -22,7 +23,7 @@ export default function MedicalRecords() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-6">
+    <div className="min-h-screen py-10 px-6" style={{ backgroundImage: `url('/ChatGPT Image Oct 26, 2025, 12_13_36 PM.png')`, backgroundSize: 'cover', backgroundPosition: 'left', backgroundRepeat: 'no-repeat' }}>
       <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-2xl p-8 border border-gray-200">
         {/* Header */}
         <div className="flex items-center space-x-3 mb-6">
@@ -95,6 +96,17 @@ export default function MedicalRecords() {
           ) : (
             <p className="text-gray-500 italic">No lab results uploaded yet.</p>
           )}
+        </div>
+
+        {/* Back Button */}
+        <div className="text-center mt-8">
+          <Link
+            to="/patient-dashboard"
+            className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 inline-flex items-center gap-2"
+          >
+            <ArrowLeft size={18} />
+            Back to Dashboard
+          </Link>
         </div>
       </div>
     </div>
