@@ -141,8 +141,8 @@ export default function PrescriptionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-6">
-      <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-2xl p-8 border border-gray-200">
+    <div className="min-h-screen bg-gray-50 py-10 px-6" style={{ backgroundImage: 'url(/pills-background.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      <div className="max-w-5xl mx-auto bg-white/90 shadow-lg rounded-2xl p-8 border border-gray-200">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
