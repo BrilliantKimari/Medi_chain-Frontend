@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Upload, ClipboardList, Stethoscope } from "lucide-react";
+import { Upload, ClipboardList, Stethoscope, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function PatientManagement() {
   const [patientOps, setPatientOps] = useState({
@@ -66,7 +67,7 @@ export default function PatientManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen p-6" style={{ backgroundImage: `url('/ChatGPT Image Oct 26, 2025, 12_01_19 PM.png')`, backgroundSize: 'cover', backgroundPosition: 'left', backgroundRepeat: 'no-repeat' }}>
       <div className="max-w-3xl mx-auto bg-white shadow-md rounded-xl p-8">
         <div className="flex items-center mb-6">
           <ClipboardList className="text-blue-600 mr-3" size={28} />
@@ -166,6 +167,17 @@ export default function PatientManagement() {
           >
             View Medical Records →
           </a>
+        </div>
+
+        {/* Back Button */}
+        <div className="text-center mt-6">
+          <Link
+            to="/patient-dashboard"
+            className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 inline-flex items-center gap-2"
+          >
+            <ArrowLeft size={18} />
+            Back to Dashboard
+          </Link>
         </div>
       </div>
     </div>
