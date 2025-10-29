@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Heart, FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function PatientRecords() {
+  const navigate = useNavigate();
   const [patient, setPatient] = useState({
     name: "",
     age: "",
@@ -13,70 +14,44 @@ export default function PatientRecords() {
     caregiverPhone: "",
   });
 
-  const handleChange = (e) => {
-    setPatient({ ...patient, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setPatient({ ...patient, [e.target.name]: e.target.value });
 
   const handleUpdate = () => {
-    medicalData.patient = { ...medicalData.patient, ...patient };
     alert("Patient information updated successfully!");
-    console.log("Saved patient info:", medicalData.patient);
+    console.log("Saved patient info:", patient);
   };
 
   return (
-    <div className="min-h-screen bg-blue-50 p-6">
-      <div className="max-w-md mx-auto bg-white rounded-xl shadow-md p-8">
-        <div className="flex items-center mb-6">
-          <Heart className="text-red-600 mr-3" size={28} />
-          <h1 className="text-2xl font-bold text-blue-700">Patient Information</h1>
-        </div>
+    <div className="min-h-screen bg-blue-50 p-6 flex flex-col items-center justify-center">
+      <div className="max-w-md w-full bg-white rounded-xl shadow-md p-8">
+        <h1 className="text-2xl font-bold text-blue-700 mb-6 text-center">Patient Records</h1>
 
-        <div className="space-y-4">
-          <div>
-            <label className="block text-gray-700 mb-2">Full Name</label>
-            <input type="text" name="name" value={patient.name} onChange={handleChange} className="w-full border border-gray-300 rounded-md p-2" />
+        {Object.keys(patient).map((key) => (
+          <div key={key} className="mb-4">
+            <label className="block text-gray-700 mb-1">{key.replace(/([A-Z])/g, " $1")}</label>
+            <input
+              type={key === "age" ? "number" : "text"}
+              name={key}
+              value={patient[key]}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
-          <div>
-            <label className="block text-gray-700 mb-2">Age</label>
-            <input type="number" name="age" value={patient.age} onChange={handleChange} className="w-full border border-gray-300 rounded-md p-2" />
-          </div>
-          <div>
-            <label className="block text-gray-700 mb-2">Allergies</label>
-            <input type="text" name="allergy" value={patient.allergy} onChange={handleChange} className="w-full border border-gray-300 rounded-md p-2" />
-          </div>
-          <div>
-            <label className="block text-gray-700 mb-2">Blood Group</label>
-            <input type="text" name="bloodGroup" value={patient.bloodGroup} onChange={handleChange} className="w-full border border-gray-300 rounded-md p-2" />
-          </div>
+        ))}
 
-          {/* New Fields */}
-          <div>
-            <label className="block text-gray-700 mb-2">Next of Kin</label>
-            <input type="text" name="nextOfKin" value={patient.nextOfKin} onChange={handleChange} className="w-full border border-gray-300 rounded-md p-2" />
-          </div>
-          <div>
-            <label className="block text-gray-700 mb-2">Next of Kin Phone</label>
-            <input type="text" name="nextOfKinPhone" value={patient.nextOfKinPhone} onChange={handleChange} className="w-full border border-gray-300 rounded-md p-2" />
-          </div>
-          <div>
-            <label className="block text-gray-700 mb-2">Caregiver Name</label>
-            <input type="text" name="caregiverName" value={patient.caregiverName} onChange={handleChange} className="w-full border border-gray-300 rounded-md p-2" />
-          </div>
-          <div>
-            <label className="block text-gray-700 mb-2">Caregiver Phone</label>
-            <input type="text" name="caregiverPhone" value={patient.caregiverPhone} onChange={handleChange} className="w-full border border-gray-300 rounded-md p-2" />
-          </div>
-        </div>
-
-        <button onClick={handleUpdate} className="mt-6 w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700">
-          Update Info
+        <button
+          onClick={handleUpdate}
+          className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 mb-4"
+        >
+          Save Info
         </button>
 
-        <div className="text-center mt-6">
-          <a href="/medical-records" className="text-blue-600 font-medium hover:underline flex items-center justify-center gap-1">
-            <FileText size={18} /> View Medical Records
-          </a>
-        </div>
+        <button
+          onClick={() => navigate("/login")}
+          className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+        >
+          Go to Login
+        </button>
       </div>
     </div>
   );
