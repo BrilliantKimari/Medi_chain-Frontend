@@ -54,6 +54,10 @@ export default function PatientManagement() {
         documents: [...prev.documents, newDoc],
       }));
 
+      // Save to localStorage
+      const existing = JSON.parse(localStorage.getItem("uploadedLabResults")) || [];
+      localStorage.setItem("uploadedLabResults", JSON.stringify([...existing, newDoc]));
+
       alert("File uploaded successfully!");
       setPdfFile(null);
     } catch (err) {
