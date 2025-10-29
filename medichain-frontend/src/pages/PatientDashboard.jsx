@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Stethoscope, FileText, Pill, Heart, Activity } from "lucide-react";
+import { Stethoscope, FileText, Pill, Heart, Activity, CalendarDays } from "lucide-react";
+
 
 const healthTips = [
   "Stay hydrated! Drinking at least 8 glasses of water daily can improve energy levels, skin health, and overall well-being.",
@@ -249,6 +250,16 @@ export default function PatientDashboard() {
 
         {/* Main Actions */}
         <div className="grid gap-8 md:grid-cols-3 w-full max-w-6xl mx-auto mb-12">
+          {/* Appointments */}
+          <Link
+            to="/appointments"
+            className="group flex flex-col items-center bg-gradient-to-br from-green-500 to-green-600 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all text-white"
+          >
+           <CalendarDays size={56} className="mb-4 group-hover:animate-pulse" />
+           <h3 className="text-2xl font-bold mb-3">Appointments</h3>
+            <p className="text-center opacity-90">Schedule and track upcoming medical visits. Stay on top of your  healthcare timeline.</p>
+
+          </Link>
           {/* Medical Records */}
           <Link
             to="/medical-records"
@@ -276,6 +287,7 @@ export default function PatientDashboard() {
               Manage operations, scans, and procedures with detailed tracking and updates.
             </p>
           </Link>
+          
 
           {/* Prescriptions */}
           <Link
