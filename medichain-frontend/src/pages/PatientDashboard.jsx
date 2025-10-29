@@ -249,7 +249,7 @@ export default function PatientDashboard() {
 
 
         {/* Main Actions */}
-        <div className="grid gap-8 md:grid-cols-3 w-full max-w-6xl mx-auto mb-12">
+        <div className="grid gap-8 md:grid-cols-4 w-full max-w-6xl mx-auto mb-12">
           {/* Appointments */}
           <Link
             to="/appointments"

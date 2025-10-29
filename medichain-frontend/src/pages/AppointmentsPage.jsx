@@ -46,7 +46,9 @@ export default function AppointmentsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col items-center py-12 px-6">
+    <div className="min-h-screen flex flex-col items-center py-12 px-6" style={{backgroundImage: 'url("/ChatGPT Image Oct 29, 2025, 04_42_54 PM.png")', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat'}}>
+      <div className="absolute inset-0 bg-white bg-opacity-90"></div>
+      <div className="relative z-10 w-full flex flex-col items-center">
       {/* Header */}
       <h1 className="text-4xl font-bold text-blue-700 mb-4 flex items-center gap-3">
         <CalendarDays size={40} /> Appointments
@@ -129,6 +131,7 @@ export default function AppointmentsPage() {
       >
         ← Back to Dashboard
       </Link>
+      </div>
     </div>
   );
 }
