@@ -7,6 +7,8 @@ import PatientDashboard from "./pages/PatientDashboard";
 import PrescriptionPage from "./pages/PrescriptionPage";
 import MedicalRecords from "./pages/MedicalRecords";
 import AppointmentsPage from "./pages/AppointmentsPage";
+import EmergencyInfo from "./pages/EmergencyInfo";
+import EmergencyInfoLandingPage from "./pages/EmergencyInfoLoadingPage";
 
 export default function App() {
   return (
@@ -20,6 +22,8 @@ export default function App() {
         <Route path="/prescriptions" element={<PrescriptionPage />} />
         <Route path="/medical-records" element={<MedicalRecords />} />
         <Route path="/appointments" element={<AppointmentsPage />} />
+        <Route path="/emergency-info" element={<EmergencyInfo />} />
+        <Route path="/emergency-info/:patientId" element={<EmergencyInfoLandingPage />} />
       </Routes>
     </Router>
   );
