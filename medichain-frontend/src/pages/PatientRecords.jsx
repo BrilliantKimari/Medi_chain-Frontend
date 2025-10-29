@@ -7,6 +7,9 @@ export default function PatientRecords() {
     age: "",
     allergy: "",
     bloodGroup: "",
+    nextOfKin: "",
+    caregiverName: "",
+    caregiverNumber: "",
   });
 
   const handleChange = (e) => {
@@ -66,6 +69,36 @@ export default function PatientRecords() {
               onChange={handleChange}
               className="w-full border border-gray-300 rounded-md p-2"
             />
+          </div>
+          <div>
+            <label className="block text-gray-700 mb-2">Next of Kin</label>
+            <input
+            type="text"
+            name="nextOfKin"
+            value={patient.nextOfKin}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded-md p-2"
+          />
+          <div>
+            <label className="block text-gray-700 mb-2">Caregiver’s Phone Number</label>
+            <input
+            type="tel"
+            name="caregiverNumber"
+            value={patient.caregiverNumber}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded-md p-2"
+          />
+          </div>
+          <div>
+            <label className="block text-gray-700 mb-2">Caregiver’s Name</label>
+            <input
+            type="text"
+            name="caregiverName"
+            value={patient.caregiverName}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded-md p-2"
+          />
+          </div>
           </div>
         </div>
 
