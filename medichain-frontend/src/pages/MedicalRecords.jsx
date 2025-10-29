@@ -32,20 +32,7 @@ export default function MedicalRecords() {
     },
   ]);
 
-  const [labResults, setLabResults] = useState([
-    {
-      id: 1,
-      date: "2024-06-02",
-      test: "Blood Test",
-      file: "https://example.com/bloodtest.pdf",
-    },
-    {
-      id: 2,
-      date: "2024-08-15",
-      test: "MRI Scan Results",
-      file: "https://example.com/mri.pdf",
-    },
-  ]);
+  const [labResults, setLabResults] = useState([]);
 
   useEffect(() => {
     const savedData = localStorage.getItem("patientData");
@@ -55,6 +42,15 @@ export default function MedicalRecords() {
         ...JSON.parse(savedData),
       }));
     }
+
+    // Load uploaded lab results
+    const uploaded = JSON.parse(localStorage.getItem("uploadedLabResults")) || [];
+    setLabResults(uploaded.map((doc, idx) => ({
+      id: idx + 1,
+      date: doc.date,
+      test: doc.fileName,
+      file: doc.url,
+    })));
   }, []);
 
   return (
