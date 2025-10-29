@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Stethoscope, FileText, Pill, Heart, Activity, CalendarDays } from "lucide-react";
+import { Stethoscope, FileText, Pill, Heart, Activity, CalendarDays, AlertTriangle } from "lucide-react";
 
 
 const healthTips = [
@@ -250,6 +250,17 @@ export default function PatientDashboard() {
 
         {/* Main Actions */}
         <div className="grid gap-8 md:grid-cols-4 w-full max-w-6xl mx-auto mb-12">
+          {/* Emergency Info */}
+          <Link 
+           to="/emergency-info"
+            className="group flex flex-col items-center bg-gradient-to-br from-red-500 to-red-600 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all text-white"
+          >
+            <AlertTriangle size={56} className="mb-4 group-hover:animate-pulse" />
+            <h3 className="text-2xl font-bold mb-3">Emergency Info</h3>
+            <p className="text-center opacity-90">
+               Access or update vital emergency details, including patient information and response instructions.
+            </p>
+          </Link>
           {/* Appointments */}
           <Link
             to="/appointments"
