@@ -6,6 +6,7 @@ import PatientRecords from "./pages/PatientRecords";
 import PatientDashboard from "./pages/PatientDashboard";
 import PrescriptionPage from "./pages/PrescriptionPage";
 import MedicalRecords from "./pages/MedicalRecords";
+import AppointmentsPage from "./pages/AppointmentsPage";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/patient-dashboard" element={<PatientDashboard />} />
         <Route path="/prescriptions" element={<PrescriptionPage />} />
         <Route path="/medical-records" element={<MedicalRecords />} />
+        <Route path="/appointments" element={<AppointmentsPage />} />
       </Routes>
     </Router>
   );
