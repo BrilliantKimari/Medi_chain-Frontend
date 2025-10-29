@@ -6,6 +6,7 @@ export default function PatientManagement() {
   const [patientOps, setPatientOps] = useState({
     patientId: "",
     operationType: "",
+    doctorsName: "",
     notes: "",
     date: "",
     documents: [],
@@ -13,6 +14,8 @@ export default function PatientManagement() {
 
   const [pdfFile, setPdfFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
 
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
   const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
@@ -25,8 +28,8 @@ export default function PatientManagement() {
     setPdfFile(e.target.files[0]);
   };
 
-  const uploadPdf = async () => {
-    if (!pdfFile) return alert("Please select a PDF file first.");
+  const uploadFile = async () => {
+    if (!pdfFile) return alert("Please select a file first.");
     setUploading(true);
 
     const formData = new FormData();
@@ -51,7 +54,7 @@ export default function PatientManagement() {
         documents: [...prev.documents, newDoc],
       }));
 
-      alert("PDF uploaded successfully!");
+      alert("File uploaded successfully!");
       setPdfFile(null);
     } catch (err) {
       console.error(err);
@@ -63,7 +66,9 @@ export default function PatientManagement() {
 
   const handleSave = () => {
     console.log("Updated Patient Ops:", patientOps);
-    alert("Patient operation details updated successfully!");
+    setToastMessage("Patient operation details updated successfully!");
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
   };
 
   return (
@@ -96,6 +101,16 @@ export default function PatientManagement() {
             />
           </div>
           <div>
+            <label className="block text-gray-700 mb-2">Doctor's Name</label>
+            <input
+              type="text"
+              name="doctorsName"
+              value={patientOps.doctorsName}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md p-2"
+            />
+          </div>
+          <div>
             <label className="block text-gray-700 mb-2">Notes</label>
             <textarea
               name="notes"
@@ -117,20 +132,36 @@ export default function PatientManagement() {
           </div>
         </div>
 
-        {/* Upload PDF */}
+        {/* Upload File */}
         <div className="mb-6">
-          <label className="block text-gray-700 mb-2">Upload MRI/Operation Report</label>
-          <div className="flex items-center gap-3">
-            <input type="file" accept="application/pdf" onChange={handleFileChange} />
+          <label className="block text-gray-700 mb-2">Upload Lab Results and Attachments</label>
+          <div
+            className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer flex flex-col items-center justify-center"
+            onClick={() => document.getElementById('file-input').click()}
+          >
+            <Upload className="text-gray-500 mb-2" size={32} />
+            <p className="text-gray-600 text-center">
+              {pdfFile ? `Selected: ${pdfFile.name}` : "Click to select or drag and drop files here"}
+            </p>
+            <p className="text-sm text-gray-500 mt-1">Supported: PDFs, Images, Docs, TXT</p>
+            <input
+              id="file-input"
+              type="file"
+              accept="application/pdf,image/*,.doc,.docx,.txt"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </div>
+          {pdfFile && (
             <button
-              onClick={uploadPdf}
+              onClick={uploadFile}
               disabled={uploading}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center"
+              className="mt-4 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 flex items-center justify-center"
             >
               <Upload className="mr-2" size={18} />
-              {uploading ? "Uploading..." : "Upload PDF"}
+              {uploading ? "Uploading..." : "Upload File"}
             </button>
-          </div>
+          )}
         </div>
 
         {/* Uploaded Docs */}
@@ -179,6 +210,15 @@ export default function PatientManagement() {
             Back to Dashboard
           </Link>
         </div>
+
+        {/* Toast Notification */}
+        {showToast && (
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-xl text-center">
+              {toastMessage}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
