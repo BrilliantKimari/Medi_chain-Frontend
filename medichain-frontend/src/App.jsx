@@ -3,6 +3,7 @@ import LandingPage from "./pages/LandingPage";
 import PatientPage from "./pages/PatientPage";
 import PatientManagement from "./pages/PatientManagement";
 import PatientRecords from "./pages/PatientRecords";
+import PatientLoginPage from "./pages/PatientLogin";
 import PatientDashboard from "./pages/PatientDashboard";
 import PrescriptionPage from "./pages/PrescriptionPage";
 import MedicalRecords from "./pages/MedicalRecords";
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/patient" element={<PatientPage />} />
         <Route path="/patient-management" element={<PatientManagement />} />
         <Route path="/patient-records" element={<PatientRecords />} />
+        <Route path="/login" element={<PatientLoginPage/>} />
         <Route path="/patient-dashboard" element={<PatientDashboard />} />
         <Route path="/prescriptions" element={<PrescriptionPage />} />
         <Route path="/medical-records" element={<MedicalRecords />} />
