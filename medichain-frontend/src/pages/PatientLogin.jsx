@@ -3,13 +3,12 @@ import { useNavigate } from "react-router-dom";
 
 export default function PatientLogin() {
   const navigate = useNavigate();
-  const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const [loginData, setLoginData] = useState({ name: "", password: "" });
 
   const handleLogin = (e) => {
     e.preventDefault();
     console.log("Login Data:", loginData);
 
-    // TODO: Replace with real authentication
     navigate("/patient-dashboard");
   };
 
@@ -19,13 +18,13 @@ export default function PatientLogin() {
         <h1 className="text-2xl font-bold text-center text-blue-700 mb-6">Patient Login</h1>
         <form onSubmit={handleLogin}>
           <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Email</label>
+            <label className="block text-gray-700 mb-2">Name</label>
             <input
-              type="email"
-              value={loginData.email}
-              onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+              type="text"
+              value={loginData.name}
+              onChange={(e) => setLoginData({ ...loginData, name: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="your@email.com"
+              placeholder="Full Name"
               required
             />
           </div>
