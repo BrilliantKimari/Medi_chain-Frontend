@@ -1,56 +1,50 @@
 import { useEffect, useState } from "react";
 import { FileText, User, Activity, FlaskConical, Eye, ArrowLeft, PenLine } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import api from "../api";
 
 export default function MedicalRecords() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Get patient info from localStorage
   const [patient, setPatient] = useState({
-    id: "PT-00001",
+    id: "",
     name: "",
     age: "",
     allergy: "",
     bloodGroup: "",
   });
 
-  // Operations and lab results (temporary data for testing)
-  const [operations, setOperations] = useState([
-    {
-      id: 1,
-      date: "2024-05-12",
-      type: "Appendectomy",
-      doctor: "Dr. Kamau",
-      notes: "Successful surgery, patient recovering well.",
-    },
-    {
-      id: 2,
-      date: "2024-07-21",
-      type: "MRI Scan - Brain",
-      doctor: "Dr. Njeri",
-      notes: "No abnormalities detected in scan.",
-    },
-  ]);
-
-  const [labResults, setLabResults] = useState([]);
+  const [records, setRecords] = useState([]);
 
   useEffect(() => {
-    const savedData = localStorage.getItem("patientData");
-    if (savedData) {
-      setPatient((prev) => ({
-        ...prev,
-        ...JSON.parse(savedData),
-      }));
-    }
+    const fetchData = async () => {
+      try {
+        // Fetch patient profile
+        const profileResponse = await api.get("/patient/profile");
+        const profileData = profileResponse.data;
+        setPatient({
+          id: profileData.id,
+          name: profileData.full_name,
+          age: profileData.date_of_birth ? new Date().getFullYear() - new Date(profileData.date_of_birth).getFullYear() : "",
+          allergy: profileData.allergies || "",
+          bloodGroup: "",
+        });
 
-    // Load uploaded lab results
-    const uploaded = JSON.parse(localStorage.getItem("uploadedLabResults")) || [];
-    setLabResults(uploaded.map((doc, idx) => ({
-      id: idx + 1,
-      date: doc.date,
-      test: doc.fileName,
-      file: doc.url,
-    })));
+        // Fetch medical records
+        const recordsResponse = await api.get("/patient/records");
+        setRecords(recordsResponse.data);
+      } catch (err) {
+        setError("Failed to load medical records");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   return (
@@ -82,65 +76,48 @@ export default function MedicalRecords() {
           <p><strong>Blood Group:</strong> {patient.bloodGroup || "—"}</p>
         </div>
 
-        {/* Operations History */}
+        {/* Medical Records */}
         <div className="bg-gray-100 p-5 rounded-xl border border-gray-200 mb-8">
           <h2 className="text-xl font-semibold text-gray-700 mb-4 flex items-center gap-2">
-            <Activity className="text-green-500" size={22} /> Operation History
+            <Activity className="text-green-500" size={22} /> Medical Records
           </h2>
 
-          {operations.length > 0 ? (
+          {loading ? (
+            <p className="text-gray-500 italic">Loading records...</p>
+          ) : error ? (
+            <p className="text-red-500 italic">{error}</p>
+          ) : records.length > 0 ? (
             <ul className="space-y-4">
-              {operations.map((op) => (
+              {records.map((record) => (
                 <li
-                  key={op.id}
+                  key={record.id}
                   className="bg-white p-4 rounded-md border border-gray-200 shadow-sm"
                 >
-                  <p className="font-medium text-gray-800">{op.type}</p>
+                  <p className="font-medium text-gray-800">Diagnosis: {record.diagnosis || "N/A"}</p>
                   <p className="text-sm text-gray-600">
-                    {op.date} — <span className="italic">{op.doctor}</span>
+                    Date: {record.date_of_visit || "N/A"}
                   </p>
-                  <p className="text-gray-700 mt-2">
-                    <strong>Notes:</strong> {op.notes}
-                  </p>
+                  {record.prescription && (
+                    <p className="text-gray-700 mt-2">
+                      <strong>Prescription:</strong> {record.prescription}
+                    </p>
+                  )}
+                  {record.file_url && (
+                    <a
+                      href={record.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mt-2"
+                    >
+                      <Eye size={18} />
+                      View Attachment
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-gray-500 italic">No operation history recorded.</p>
-          )}
-        </div>
-
-        {/* Lab Results Section */}
-        <div className="bg-gray-100 p-5 rounded-xl border border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4 flex items-center gap-2">
-            <FlaskConical className="text-purple-500" size={22} /> Lab Results & Attachments
-          </h2>
-
-          {labResults.length > 0 ? (
-            <ul className="space-y-3">
-              {labResults.map((result) => (
-                <li
-                  key={result.id}
-                  className="flex items-center justify-between bg-white px-4 py-2 rounded-md border border-gray-200 shadow-sm"
-                >
-                  <div>
-                    <p className="font-medium text-gray-800">{result.test}</p>
-                    <p className="text-sm text-gray-600">Date: {result.date}</p>
-                  </div>
-                  <a
-                    href={result.file}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
-                  >
-                    <Eye size={18} />
-                    View PDF
-                  </a>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500 italic">No lab results uploaded yet.</p>
+            <p className="text-gray-500 italic">No medical records found.</p>
           )}
         </div>
 

@@ -1,27 +1,27 @@
 import { useState } from "react";
 import { Upload, ClipboardList, Stethoscope, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import api from "../api";
 
 export default function PatientManagement() {
-  const [patientOps, setPatientOps] = useState({
-    patientId: "",
-    operationType: "",
-    doctorsName: "",
-    notes: "",
-    date: "",
-    documents: [],
+  const [record, setRecord] = useState({
+    diagnosis: "",
+    prescription: "",
+    date_of_visit: "",
   });
 
   const [pdfFile, setPdfFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [showToast, setShowToast] = useState(false);
+  const [error, setError] = useState("");
 
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
   const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
   const handleChange = (e) => {
-    setPatientOps({ ...patientOps, [e.target.name]: e.target.value });
+    setRecord({ ...record, [e.target.name]: e.target.value });
   };
 
   const handleFileChange = (e) => {
@@ -43,20 +43,10 @@ export default function PatientManagement() {
       });
       const data = await res.json();
 
-      const newDoc = {
-        fileName: pdfFile.name,
-        url: data.secure_url,
-        date: new Date().toLocaleDateString(),
-      };
-
-      setPatientOps((prev) => ({
+      setRecord((prev) => ({
         ...prev,
-        documents: [...prev.documents, newDoc],
+        file_url: data.secure_url,
       }));
-
-      // Save to localStorage
-      const existing = JSON.parse(localStorage.getItem("uploadedLabResults")) || [];
-      localStorage.setItem("uploadedLabResults", JSON.stringify([...existing, newDoc]));
 
       alert("File uploaded successfully!");
       setPdfFile(null);
@@ -68,11 +58,38 @@ export default function PatientManagement() {
     }
   };
 
-  const handleSave = () => {
-    console.log("Updated Patient Ops:", patientOps);
-    setToastMessage("Patient operation details updated successfully!");
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
+  const handleSave = async () => {
+    if (!record.diagnosis || !record.prescription || !record.date_of_visit) {
+      setError("Please fill in all required fields.");
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+
+    try {
+      await api.post("/patient/records", {
+        diagnosis: record.diagnosis,
+        prescription: record.prescription,
+        date_of_visit: record.date_of_visit,
+        file_url: record.file_url || null,
+      });
+
+      setToastMessage("Medical record added successfully!");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+
+      // Reset form
+      setRecord({
+        diagnosis: "",
+        prescription: "",
+        date_of_visit: "",
+      });
+    } catch (err) {
+      setError(err.response?.data?.error || "Failed to save record.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -83,55 +100,46 @@ export default function PatientManagement() {
           <h1 className="text-2xl font-bold text-blue-700">Patient Management</h1>
         </div>
 
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
+            {error}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-4 mb-6">
           <div>
-            <label className="block text-gray-700 mb-2">Patient ID</label>
+            <label className="block text-gray-700 mb-2">Diagnosis *</label>
             <input
               type="text"
-              name="patientId"
-              value={patientOps.patientId}
+              name="diagnosis"
+              value={record.diagnosis}
               onChange={handleChange}
               className="w-full border border-gray-300 rounded-md p-2"
+              placeholder="Enter diagnosis"
+              required
             />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2">Operation / MRI Type</label>
-            <input
-              type="text"
-              name="operationType"
-              value={patientOps.operationType}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 mb-2">Doctor's Name</label>
-            <input
-              type="text"
-              name="doctorsName"
-              value={patientOps.doctorsName}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 mb-2">Notes</label>
+            <label className="block text-gray-700 mb-2">Prescription *</label>
             <textarea
-              name="notes"
+              name="prescription"
               rows="3"
-              value={patientOps.notes}
+              value={record.prescription}
               onChange={handleChange}
               className="w-full border border-gray-300 rounded-md p-2"
+              placeholder="Enter prescription details"
+              required
             ></textarea>
           </div>
           <div>
-            <label className="block text-gray-700 mb-2">Date of Operation</label>
+            <label className="block text-gray-700 mb-2">Date of Visit *</label>
             <input
               type="date"
-              name="date"
-              value={patientOps.date}
+              name="date_of_visit"
+              value={record.date_of_visit}
               onChange={handleChange}
               className="w-full border border-gray-300 rounded-md p-2"
+              required
             />
           </div>
         </div>
@@ -168,30 +176,30 @@ export default function PatientManagement() {
           )}
         </div>
 
-        {/* Uploaded Docs */}
-        {patientOps.documents.length > 0 && (
-          <div className="space-y-3 mb-6">
-            {patientOps.documents.map((doc, idx) => (
-              <div key={idx} className="bg-gray-100 p-3 rounded-md flex justify-between">
-                <p>{doc.fileName} — <span className="text-sm text-gray-500">{doc.date}</span></p>
-                <a
-                  href={doc.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
-                >
-                  View
-                </a>
-              </div>
-            ))}
+        {/* Uploaded File */}
+        {record.file_url && (
+          <div className="mb-6">
+            <label className="block text-gray-700 mb-2">Attached File</label>
+            <div className="bg-gray-100 p-3 rounded-md flex justify-between">
+              <p>File attached successfully</p>
+              <a
+                href={record.file_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                View File
+              </a>
+            </div>
           </div>
         )}
 
         <button
           onClick={handleSave}
-          className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700"
+          disabled={saving}
+          className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Save Operation Details
+          {saving ? "Saving..." : "Save Medical Record"}
         </button>
 
         {/* View Medical Records */}

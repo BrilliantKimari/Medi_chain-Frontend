@@ -1,32 +1,62 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AlertTriangle, ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import api from "../api";
 
 export default function EmergencyInfo() {
   const [info, setInfo] = useState({
-    patientName: "",
-    age: "",
     bloodGroup: "",
-    allergy: "",
-    emergencyContactName: "",
-    emergencyContactPhone: "",
-    emergencyInstructions: "",
+    publicVisible: false,
+    publicPhoneVisible: false,
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Fetch current emergency profile
+    const fetchProfile = async () => {
+      try {
+        const response = await api.get("/patient/profile");
+        const patient = response.data;
+        // Assuming emergency profile is linked, but for now, just set defaults
+        setInfo({
+          bloodGroup: patient.blood_type || "",
+          publicVisible: patient.public_visible || false,
+          publicPhoneVisible: patient.public_phone_visible || false,
+        });
+      } catch (err) {
+        console.error("Failed to fetch profile:", err);
+      }
+    };
+    fetchProfile();
+  }, []);
+
   const handleChange = (e) => {
-    setInfo({ ...info, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setInfo({ ...info, [name]: type === "checkbox" ? checked : value });
   };
 
-  const handleSave = () => {
-    const id = `patient-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    const emergencyInfo = { id, ...info };
+  const handleSave = async () => {
+    setLoading(true);
+    setError("");
 
-    localStorage.setItem(`emergencyInfo-${id}`, JSON.stringify(emergencyInfo));
-
-    alert("Emergency information saved successfully!");
-    navigate(`/emergency-info/${id}`);
+    try {
+      await api.put("/patient/emergency-profile", {
+        blood_type: info.bloodGroup,
+        public_visible: info.publicVisible,
+        public_phone_visible: info.publicPhoneVisible,
+      });
+      alert("Emergency information updated successfully!");
+      // Navigate to emergency loading page with patient ID
+      const patientId = localStorage.getItem("patient_id");
+      navigate(`/emergency-info/${patientId}`);
+    } catch (err) {
+      setError(err.response?.data?.error || "Failed to update emergency information.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -39,82 +69,62 @@ export default function EmergencyInfo() {
           </h1>
         </div>
 
-        {/* Patient Info */}
-        <div className="space-y-4 mb-6">
-          {["patientName", "age", "bloodGroup", "allergy"].map((field) => (
-            <div key={field}>
-              <label className="block text-gray-700 mb-1 capitalize">
-                {field.replace(/([A-Z])/g, " $1")}
-              </label>
-              <input
-                type={field === "age" ? "number" : "text"}
-                name={field}
-                value={info[field]}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md p-2"
-                placeholder={
-                  field === "patientName"
-                    ? "John Doe"
-                    : field === "bloodGroup"
-                    ? "O+"
-                    : field === "allergy"
-                    ? "Penicillin"
-                    : ""
-                }
-              />
-            </div>
-          ))}
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
+            {error}
+          </div>
+        )}
 
-          {/* Emergency Contact */}
+        {/* Emergency Profile Info */}
+        <div className="space-y-4 mb-6">
+          <div>
+            <label className="block text-gray-700 mb-1">Blood Group</label>
+            <input
+              type="text"
+              name="bloodGroup"
+              value={info.bloodGroup}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md p-2"
+              placeholder="O+"
+            />
+          </div>
+
+          {/* Visibility Settings */}
           <div className="border border-red-200 bg-red-50 rounded-lg p-4 mt-4">
             <h2 className="text-lg font-semibold text-red-700 mb-2">
-              Emergency Contact Details
+              Public Visibility Settings
             </h2>
-            <div className="mb-3">
-              <label className="block text-gray-700 mb-1">Contact Name</label>
-              <input
-                type="text"
-                name="emergencyContactName"
-                value={info.emergencyContactName}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md p-2"
-                placeholder="Jane Doe"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-1">Contact Phone</label>
-              <input
-                type="tel"
-                name="emergencyContactPhone"
-                value={info.emergencyContactPhone}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md p-2"
-                placeholder="+254 712 345 678"
-              />
+            <div className="space-y-2">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="publicVisible"
+                  checked={info.publicVisible}
+                  onChange={handleChange}
+                  className="mr-2"
+                />
+                Make emergency profile publicly visible
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="publicPhoneVisible"
+                  checked={info.publicPhoneVisible}
+                  onChange={handleChange}
+                  className="mr-2"
+                />
+                Show phone number publicly
+              </label>
             </div>
           </div>
         </div>
 
-        {/* Emergency Instructions */}
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">
-            Emergency Instructions
-          </label>
-          <textarea
-            name="emergencyInstructions"
-            rows="4"
-            value={info.emergencyInstructions}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md p-2"
-            placeholder="Describe how to assist the patient in an emergency..."
-          ></textarea>
-        </div>
-
         <button
           onClick={handleSave}
-          className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700"
+          disabled={loading}
+          className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Save Emergency Info
+          {loading ? "Updating..." : "Update Emergency Info"}
         </button>
 
         <div className="text-center mt-6">

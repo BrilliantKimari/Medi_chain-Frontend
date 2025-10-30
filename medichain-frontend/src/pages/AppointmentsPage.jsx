@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { Bell, CalendarDays } from "lucide-react";
 import { Link } from "react-router-dom";
+import api from "../api";
 
 export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [note, setNote] = useState("");
@@ -12,14 +15,25 @@ export default function AppointmentsPage() {
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [errorText, setErrorText] = useState("");
 
-  // Load saved appointments
+  // Load appointments from backend
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("appointments")) || [];
-    setAppointments(saved);
+    const fetchAppointments = async () => {
+      try {
+        const response = await api.get("/patient/appointments");
+        setAppointments(response.data);
+      } catch (err) {
+        setError("Failed to load appointments");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAppointments();
   }, []);
 
   // Save new appointment
-  const handleAddAppointment = () => {
+  const handleAddAppointment = async () => {
     if (!date || !time || !note.trim()) {
       setErrorText("Please fill in all fields before adding an appointment.");
       setShowErrorMessage(true);
@@ -27,23 +41,30 @@ export default function AppointmentsPage() {
       return;
     }
 
-    const newAppointment = {
-      id: Date.now(),
-      date,
-      time,
-      note,
-    };
+    try {
+      const scheduledTime = `${date} ${time}:00`; // Combine date and time
+      await api.post("/patient/appointments", {
+        description: note,
+        scheduled_time: scheduledTime,
+        status: "pending"
+      });
 
-    const updated = [...appointments, newAppointment];
-    setAppointments(updated);
-    localStorage.setItem("appointments", JSON.stringify(updated));
+      // Refresh appointments
+      const response = await api.get("/patient/appointments");
+      setAppointments(response.data);
 
-    setDate("");
-    setTime("");
-    setNote("");
-    setMessageText("Appointment added successfully!");
-    setShowMessage(true);
-    setTimeout(() => setShowMessage(false), 3000);
+      setDate("");
+      setTime("");
+      setNote("");
+      setMessageText("Appointment added successfully!");
+      setShowMessage(true);
+      setTimeout(() => setShowMessage(false), 3000);
+    } catch (err) {
+      setErrorText("Failed to add appointment");
+      setShowErrorMessage(true);
+      setTimeout(() => setShowErrorMessage(false), 3000);
+      console.error(err);
+    }
   };
 
   // Delete appointment
@@ -118,24 +139,23 @@ export default function AppointmentsPage() {
           <Bell size={20} /> Upcoming Appointments
         </h2>
 
-        {appointments.length === 0 ? (
+        {loading ? (
+          <p className="text-gray-500 text-center">Loading appointments...</p>
+        ) : error ? (
+          <p className="text-red-500 text-center">{error}</p>
+        ) : appointments.length === 0 ? (
           <p className="text-gray-500 text-center">No appointments scheduled yet.</p>
         ) : (
           <ul className="divide-y divide-gray-200">
             {appointments.map((a) => (
               <li key={a.id} className="py-4 flex justify-between items-center">
                 <div>
-                  <p className="font-medium text-gray-800">{a.note}</p>
+                  <p className="font-medium text-gray-800">{a.description}</p>
                   <p className="text-gray-500 text-sm">
-                    {a.date} — {a.time}
+                    {new Date(a.scheduled_time).toLocaleDateString()} — {new Date(a.scheduled_time).toLocaleTimeString()}
                   </p>
+                  <p className="text-gray-400 text-xs">Status: {a.status}</p>
                 </div>
-                <button
-                  onClick={() => handleDelete(a.id)}
-                  className="text-red-500 hover:text-red-700 transition text-sm"
-                >
-                  Delete
-                </button>
               </li>
             ))}
           </ul>

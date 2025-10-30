@@ -72,12 +72,20 @@ export default function LandingPage() {
       </div>
 
       {/* Call to Action */}
-      <Link
-        to="/patient"
-        className="bg-blue-600 text-white px-10 py-4 rounded-full shadow-lg hover:bg-blue-700 hover:scale-105 transition transform text-lg font-semibold"
-      >
-        Get Started
-      </Link>
+      <div className="flex gap-4">
+        <Link
+          to="/patient"
+          className="bg-blue-600 text-white px-10 py-4 rounded-full shadow-lg hover:bg-blue-700 hover:scale-105 transition transform text-lg font-semibold"
+        >
+          Get Started
+        </Link>
+        <Link
+          to="/login"
+          className="bg-green-600 text-white px-10 py-4 rounded-full shadow-lg hover:bg-green-700 hover:scale-105 transition transform text-lg font-semibold"
+        >
+          Login
+        </Link>
+      </div>
 
       {/* Footer */}
       <p className="text-gray-400 text-sm mt-10">
