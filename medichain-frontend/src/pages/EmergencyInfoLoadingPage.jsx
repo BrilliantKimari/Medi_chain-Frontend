@@ -2,27 +2,49 @@ import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { AlertTriangle, LogIn, Share2 } from "lucide-react";
 import QRCode from "react-qr-code";
+import api from "../api";
 
 export default function EmergencyInfoLandingPage() {
   const { patientId } = useParams();
   const [info, setInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
+    const fetchEmergencyInfo = async () => {
+      try {
+        const response = await api.get(`/emergency/${patientId}`);
+        setInfo(response.data);
+      } catch (err) {
+        setError("Failed to load emergency information.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (patientId) {
-      const saved = localStorage.getItem(`emergencyInfo-${patientId}`);
-      if (saved) setInfo(JSON.parse(saved));
+      fetchEmergencyInfo();
     }
   }, [patientId]);
 
-  if (!info) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-700">No emergency info found for this patient.</p>
+      <div className="min-h-screen flex items-center justify-center bg-red-50">
+        <p className="text-gray-700">Loading emergency information...</p>
       </div>
     );
   }
 
-  const qrLink = `${window.location.origin}/emergency-info/${info.id}`;
+  if (error || !info) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-gray-700">{error || "No emergency info found for this patient."}</p>
+      </div>
+    );
+  }
+
+  const qrLink = `${window.location.origin}/emergency-info/${patientId}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(qrLink);
@@ -42,13 +64,15 @@ export default function EmergencyInfoLandingPage() {
 
         {/* Patient Info */}
         <div className="space-y-3 mb-8">
-          <p><strong>Name:</strong> {info.patientName}</p>
-          <p><strong>Age:</strong> {info.age}</p>
-          <p><strong>Blood Group:</strong> {info.bloodGroup}</p>
-          <p><strong>Allergies:</strong> {info.allergy}</p>
-          <p><strong>Emergency Contact:</strong> {info.emergencyContactName}</p>
-          <p><strong>Contact Phone:</strong> {info.emergencyContactPhone}</p>
-          <p><strong>Instructions:</strong> {info.emergencyInstructions}</p>
+          <p><strong>Name:</strong> {info.full_name}</p>
+          <p><strong>Phone:</strong> {info.phone || "Not visible"}</p>
+          <p><strong>Allergies:</strong> {info.allergies || "None"}</p>
+          <p><strong>First Aid Procedure:</strong> {info.first_aid_procedure || "None"}</p>
+          <p><strong>Next of Kin:</strong> {info.next_of_kin_name || "None"}</p>
+          <p><strong>Next of Kin Phone:</strong> {info.next_of_kin_phone || "None"}</p>
+          <p><strong>Caregiver:</strong> {info.caregiver_name || "None"}</p>
+          <p><strong>Caregiver Phone:</strong> {info.caregiver_phone || "None"}</p>
+          <p><strong>Blood Type:</strong> {info.blood_type || "Unknown"}</p>
         </div>
 
         {/* QR Section */}

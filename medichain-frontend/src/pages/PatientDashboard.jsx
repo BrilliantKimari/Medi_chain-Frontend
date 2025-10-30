@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Stethoscope, FileText, Pill, Heart, Activity, CalendarDays, AlertTriangle, UserPlus, UserX } from "lucide-react";
+import api from "../api";
 
 
 const healthTips = [
@@ -127,15 +128,32 @@ const healthTips = [
 ];
 
 export default function PatientDashboard() {
+  const navigate = useNavigate();
   const [currentTip, setCurrentTip] = useState(0);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [notification, setNotification] = useState(null);
+  const [patientProfile, setPatientProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const [caregivers, setCaregivers] = useState([]);
-  const [newCaregiver, setNewCaregiver] = useState({ name: "", password: "" });
+  const [newCaregiver, setNewCaregiver] = useState({ full_name: "", phone: "", email: "", relation: "" });
   
   useEffect(() => {
+    const fetchPatientProfile = async () => {
+      try {
+        const response = await api.get("/patient/profile");
+        setPatientProfile(response.data);
+      } catch (err) {
+        console.error("Failed to fetch patient profile:", err);
+        setNotification({ type: "error", message: "Failed to load profile. Please try again." });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPatientProfile();
+
     const interval = setInterval(() => {
       setCurrentTip((prevTip) => {
         const newTip = (prevTip + 1) % healthTips.length;
@@ -156,14 +174,24 @@ export default function PatientDashboard() {
     }
   }, [notification]);
 
-  const handleAddCaregiver = () => {
-    if (!newCaregiver.name || !newCaregiver.password) {
-      setNotification({ type: "warning", message: "Enter both name and password for caregiver." });
+  const handleAddCaregiver = async () => {
+    if (!newCaregiver.full_name || !newCaregiver.phone || !newCaregiver.email || !newCaregiver.relation) {
+      setNotification({ type: "warning", message: "Please fill in all caregiver details." });
       return;
     }
-    setCaregivers([...caregivers, { ...newCaregiver }]);
-    setNotification({ type: "success", message: `Caregiver ${newCaregiver.name} added!` });
-    setNewCaregiver({ name: "", password: "" });
+
+    try {
+      const patientId = localStorage.getItem("patient_id");
+      await api.post("/caregiver/register", {
+        ...newCaregiver,
+        patient_id: patientId,
+      });
+
+      setNotification({ type: "success", message: `Caregiver ${newCaregiver.full_name} registered successfully!` });
+      setNewCaregiver({ full_name: "", phone: "", email: "", relation: "" });
+    } catch (err) {
+      setNotification({ type: "error", message: err.response?.data?.error || "Failed to add caregiver." });
+    }
   };
 
   const handleDeleteCaregiver = (name) => {
@@ -218,9 +246,17 @@ export default function PatientDashboard() {
         <Link to="/" className="text-white hover:text-blue-200 transition-colors font-medium">
           Return Home
         </Link>
-        <Link to="/" className="text-red-300 hover:text-red-100 transition-colors font-medium">
+        <button
+          onClick={() => {
+            localStorage.removeItem("token");
+            localStorage.removeItem("patient_id");
+            localStorage.removeItem("full_name");
+            navigate("/login");
+          }}
+          className="text-red-300 hover:text-red-100 transition-colors font-medium"
+        >
           Logout
-        </Link>
+        </button>
       </div>
     </nav>
 
@@ -229,19 +265,33 @@ export default function PatientDashboard() {
       <div className="flex items-center justify-between max-w-6xl mx-auto">
         <h3 className="text-lg font-semibold text-gray-800">Caregiver Management</h3>
         <div className="flex items-center gap-4">
-          <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
             <input
               type="text"
-              placeholder="Caregiver Name"
-              value={newCaregiver.name}
-              onChange={(e) => setNewCaregiver({ ...newCaregiver, name: e.target.value })}
+              placeholder="Full Name"
+              value={newCaregiver.full_name}
+              onChange={(e) => setNewCaregiver({ ...newCaregiver, full_name: e.target.value })}
               className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
-              type="password"
-              placeholder="Password"
-              value={newCaregiver.password}
-              onChange={(e) => setNewCaregiver({ ...newCaregiver, password: e.target.value })}
+              type="tel"
+              placeholder="Phone"
+              value={newCaregiver.phone}
+              onChange={(e) => setNewCaregiver({ ...newCaregiver, phone: e.target.value })}
+              className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={newCaregiver.email}
+              onChange={(e) => setNewCaregiver({ ...newCaregiver, email: e.target.value })}
+              className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="text"
+              placeholder="Relation"
+              value={newCaregiver.relation}
+              onChange={(e) => setNewCaregiver({ ...newCaregiver, relation: e.target.value })}
               className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
@@ -308,7 +358,7 @@ export default function PatientDashboard() {
       {/* Welcome Section */}
       <div className="text-center mb-12">
         <h2 className="text-4xl font-bold text-gray-800 mb-4">
-          Welcome Back, Patient!
+          Welcome Back, {patientProfile?.full_name || "Patient"}!
         </h2>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
           Take control of your health journey. Access records, manage appointments, and stay informed about your well-being.

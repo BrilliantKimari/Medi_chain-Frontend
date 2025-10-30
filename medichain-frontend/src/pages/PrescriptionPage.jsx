@@ -1,65 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Pill, Calendar, User, Plus, Edit, ArrowLeft, X, CheckCircle, Check } from "lucide-react";
 import { Link } from "react-router-dom";
+import api from "../api";
 
 export default function PrescriptionPage() {
-  // Placeholder data (you’ll later replace this with API data)
-  const [prescriptions, setPrescriptions] = useState([
-    {
-      id: 1,
-      medication: "Amoxicillin",
-      dosage: "500mg",
-      frequency: "3 times a day",
-      duration: "7 days",
-      prescribedBy: "Dr. Kamau",
-      date: "2024-10-01",
-      notes: "Take with food to avoid stomach upset.",
-      completed: false,
-      takenDoses: 0,
-      totalDoses: 21
-    },
-    {
-      id: 2,
-      medication: "Ibuprofen",
-      dosage: "200mg",
-      frequency: "As needed",
-      duration: "10 days",
-      prescribedBy: "Dr. Njeri",
-      date: "2024-09-15",
-      notes: "For pain relief, not to exceed 4 tablets per day.",
-      completed: false,
-      takenDoses: 0,
-      totalDoses: 40
-    },
-    {
-      id: 3,
-      medication: "Metformin",
-      dosage: "500mg",
-      frequency: "Twice a day",
-      duration: "Ongoing",
-      prescribedBy: "Dr. Patel",
-      date: "2024-08-20",
-      notes: "Monitor blood sugar levels regularly.",
-      completed: true,
-      takenDoses: 365,
-      totalDoses: 730
-    }
-  ]);
+  const [prescriptions, setPrescriptions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     medication: "",
     dosage: "",
     frequency: "",
     duration: "",
-    prescribedBy: "",
+    prescribed_by: "",
     date: "",
     notes: "",
-    completed: false,
-    takenDoses: 0,
-    totalDoses: 0
+    total_doses: 0
   });
+
+  useEffect(() => {
+    fetchPrescriptions();
+  }, []);
+
+  const fetchPrescriptions = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const response = await api.get("/patient/prescriptions");
+      setPrescriptions(response.data);
+    } catch (err) {
+      setError(err.response?.data?.error || "Failed to load prescriptions.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddPrescription = () => {
     setFormData({
@@ -67,43 +45,52 @@ export default function PrescriptionPage() {
       dosage: "",
       frequency: "",
       duration: "",
-      prescribedBy: "",
+      prescribed_by: "",
       date: "",
       notes: "",
-      completed: false,
-      takenDoses: 0,
-      totalDoses: 0
+      total_doses: 0
     });
     setShowModal(true);
   };
 
   const handleEditPrescription = (prescription) => {
-    setFormData(prescription);
+    setFormData({
+      medication: prescription.medication,
+      dosage: prescription.dosage,
+      frequency: prescription.frequency,
+      duration: prescription.duration,
+      prescribed_by: prescription.prescribed_by,
+      date: prescription.date,
+      notes: prescription.notes,
+      total_doses: prescription.total_doses
+    });
     setEditingId(prescription.id);
     setShowModal(true);
   };
 
-  const handleSavePrescription = () => {
-    if (editingId) {
-      setPrescriptions(prescriptions.map(p => p.id === editingId ? { ...formData, id: editingId } : p));
-      setEditingId(null);
-    } else {
-      const newPrescription = { ...formData, id: Date.now() };
-      setPrescriptions([...prescriptions, newPrescription]);
-      setShowModal(false);
+  const handleSavePrescription = async () => {
+    if (!formData.medication || !formData.dosage || !formData.frequency || !formData.date) {
+      alert("Please fill in all required fields.");
+      return;
     }
-    setFormData({
-      medication: "",
-      dosage: "",
-      frequency: "",
-      duration: "",
-      prescribedBy: "",
-      date: "",
-      notes: "",
-      completed: false,
-      takenDoses: 0,
-      totalDoses: 0
-    });
+
+    setSaving(true);
+    try {
+      if (editingId) {
+        // For now, we'll add as new since update is not implemented in backend
+        await api.post("/patient/prescriptions", formData);
+        alert("Prescription updated successfully!");
+      } else {
+        await api.post("/patient/prescriptions", formData);
+        alert("Prescription added successfully!");
+      }
+      setShowModal(false);
+      fetchPrescriptions();
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to save prescription.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -114,30 +101,32 @@ export default function PrescriptionPage() {
       dosage: "",
       frequency: "",
       duration: "",
-      prescribedBy: "",
+      prescribed_by: "",
       date: "",
       notes: "",
-      completed: false,
-      takenDoses: 0,
-      totalDoses: 0
+      total_doses: 0
     });
   };
 
-  const handleMarkCompleted = (id) => {
-    setPrescriptions(prescriptions.map(p =>
-      p.id === id ? { ...p, completed: !p.completed } : p
-    ));
+  const handleMarkCompleted = async (id) => {
+    try {
+      await api.patch(`/patient/prescriptions/${id}`, { completed: true });
+      fetchPrescriptions();
+    } catch (err) {
+      alert("Failed to mark as completed.");
+    }
   };
 
-  const handleTakeDose = (id) => {
-    setPrescriptions(prescriptions.map(p => {
-      if (p.id === id && p.takenDoses < p.totalDoses) {
-        const newTakenDoses = p.takenDoses + 1;
-        const isCompleted = newTakenDoses >= p.totalDoses;
-        return { ...p, takenDoses: newTakenDoses, completed: isCompleted };
+  const handleTakeDose = async (id) => {
+    try {
+      const prescription = prescriptions.find(p => p.id === id);
+      if (prescription && prescription.taken_doses < prescription.total_doses) {
+        await api.patch(`/patient/prescriptions/${id}`, { taken_doses: prescription.taken_doses + 1 });
+        fetchPrescriptions();
       }
-      return p;
-    }));
+    } catch (err) {
+      alert("Failed to take dose.");
+    }
   };
 
   return (
@@ -218,10 +207,20 @@ export default function PrescriptionPage() {
                   <label className="block text-gray-700 mb-2">Prescribed By</label>
                   <input
                     type="text"
-                    value={formData.prescribedBy}
-                    onChange={(e) => setFormData({ ...formData, prescribedBy: e.target.value })}
+                    value={formData.prescribed_by}
+                    onChange={(e) => setFormData({ ...formData, prescribed_by: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="e.g., Dr. Kamau"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 mb-2">Total Doses</label>
+                  <input
+                    type="number"
+                    value={formData.total_doses}
+                    onChange={(e) => setFormData({ ...formData, total_doses: parseInt(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g., 21"
                   />
                 </div>
                 <div>
@@ -247,9 +246,10 @@ export default function PrescriptionPage() {
               <div className="flex gap-4 mt-4">
                 <button
                   onClick={handleSavePrescription}
-                  className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700"
+                  disabled={saving}
+                  className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {editingId ? "Update Prescription" : "Add Prescription"}
+                  {saving ? "Saving..." : (editingId ? "Update Prescription" : "Add Prescription")}
                 </button>
                 <button
                   onClick={handleCancel}
@@ -264,77 +264,85 @@ export default function PrescriptionPage() {
 
         {/* Prescriptions List */}
         <div className="space-y-6">
-          {prescriptions.map((prescription) => (
-            <div key={prescription.id} className={`bg-gray-100 p-6 rounded-xl border border-gray-200 relative ${prescription.completed ? 'opacity-75' : ''}`}>
-              <div className="absolute top-4 right-4 flex gap-2">
-                <button
-                  onClick={() => handleEditPrescription(prescription)}
-                  className="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 flex items-center gap-1 text-sm"
-                >
-                  <Edit size={14} />
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleMarkCompleted(prescription.id)}
-                  className={`px-3 py-1 rounded-md flex items-center gap-1 text-sm ${
-                    prescription.completed
-                      ? 'bg-green-600 text-white hover:bg-green-700'
-                      : 'bg-gray-600 text-white hover:bg-gray-700'
-                  }`}
-                >
-                  <CheckCircle size={14} />
-                  {prescription.completed ? 'Completed' : 'Mark Complete'}
-                </button>
-              </div>
-              <div className="grid md:grid-cols-2 gap-4 pr-48">
-                <div>
-                  <h2 className={`text-xl font-semibold mb-2 ${prescription.completed ? 'line-through text-gray-600' : 'text-gray-800'}`}>
-                    {prescription.medication}
-                    {prescription.completed && <span className="ml-2 text-green-600 text-sm">(Completed)</span>}
-                  </h2>
-                  <p className="text-gray-700"><strong>Dosage:</strong> {prescription.dosage}</p>
-                  <p className="text-gray-700"><strong>Frequency:</strong> {prescription.frequency}</p>
-                  <p className="text-gray-700"><strong>Duration:</strong> {prescription.duration}</p>
-
-                  {/* Progress Bar */}
-                  <div className="mt-3">
-                    <div className="flex justify-between text-sm text-gray-600 mb-1">
-                      <span>Progress: {prescription.takenDoses}/{prescription.totalDoses} doses</span>
-                      <span>{Math.round((prescription.takenDoses / prescription.totalDoses) * 100)}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-green-500 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${Math.min((prescription.takenDoses / prescription.totalDoses) * 100, 100)}%` }}
-                      ></div>
-                    </div>
-                  </div>
-
-                  {/* Take Dose Button */}
-                  {!prescription.completed && prescription.takenDoses < prescription.totalDoses && (
+          {loading ? (
+            <p className="text-gray-500 italic text-center">Loading prescriptions...</p>
+          ) : error ? (
+            <p className="text-red-500 italic text-center">{error}</p>
+          ) : prescriptions.length > 0 ? (
+            prescriptions.map((prescription) => (
+              <div key={prescription.id} className={`bg-gray-100 p-6 rounded-xl border border-gray-200 relative ${prescription.completed ? 'opacity-75' : ''}`}>
+                <div className="absolute top-4 right-4 flex gap-2">
+                  <button
+                    onClick={() => handleEditPrescription(prescription)}
+                    className="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 flex items-center gap-1 text-sm"
+                  >
+                    <Edit size={14} />
+                    Edit
+                  </button>
+                  {!prescription.completed && (
                     <button
-                      onClick={() => handleTakeDose(prescription.id)}
-                      className="mt-3 bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 flex items-center gap-1 text-sm"
+                      onClick={() => handleMarkCompleted(prescription.id)}
+                      className="bg-gray-600 text-white px-3 py-1 rounded-md hover:bg-gray-700 flex items-center gap-1 text-sm"
                     >
-                      <Check size={14} />
-                      Take Dose
+                      <CheckCircle size={14} />
+                      Mark Complete
                     </button>
                   )}
                 </div>
-                <div>
-                  <p className="text-gray-700 flex items-center gap-2">
-                    <User size={18} className="text-blue-500" />
-                    <strong>Prescribed by:</strong> {prescription.prescribedBy}
-                  </p>
-                  <p className="text-gray-700 flex items-center gap-2">
-                    <Calendar size={18} className="text-green-500" />
-                    <strong>Date:</strong> {prescription.date}
-                  </p>
-                  <p className="text-gray-700 mt-2"><strong>Notes:</strong> {prescription.notes}</p>
+                <div className="grid md:grid-cols-2 gap-4 pr-48">
+                  <div>
+                    <h2 className={`text-xl font-semibold mb-2 ${prescription.completed ? 'line-through text-gray-600' : 'text-gray-800'}`}>
+                      {prescription.medication}
+                      {prescription.completed && <span className="ml-2 text-green-600 text-sm">(Completed)</span>}
+                    </h2>
+                    <p className="text-gray-700"><strong>Dosage:</strong> {prescription.dosage}</p>
+                    <p className="text-gray-700"><strong>Frequency:</strong> {prescription.frequency}</p>
+                    <p className="text-gray-700"><strong>Duration:</strong> {prescription.duration}</p>
+
+                    {/* Progress Bar */}
+                    {prescription.total_doses > 0 && (
+                      <div className="mt-3">
+                        <div className="flex justify-between text-sm text-gray-600 mb-1">
+                          <span>Progress: {prescription.taken_doses || 0}/{prescription.total_doses} doses</span>
+                          <span>{Math.round(((prescription.taken_doses || 0) / prescription.total_doses) * 100)}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${Math.min(((prescription.taken_doses || 0) / prescription.total_doses) * 100, 100)}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Take Dose Button */}
+                    {!prescription.completed && prescription.total_doses > 0 && (prescription.taken_doses || 0) < prescription.total_doses && (
+                      <button
+                        onClick={() => handleTakeDose(prescription.id)}
+                        className="mt-3 bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 flex items-center gap-1 text-sm"
+                      >
+                        <Check size={14} />
+                        Take Dose
+                      </button>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-gray-700 flex items-center gap-2">
+                      <User size={18} className="text-blue-500" />
+                      <strong>Prescribed by:</strong> {prescription.prescribed_by}
+                    </p>
+                    <p className="text-gray-700 flex items-center gap-2">
+                      <Calendar size={18} className="text-green-500" />
+                      <strong>Date:</strong> {prescription.date}
+                    </p>
+                    <p className="text-gray-700 mt-2"><strong>Notes:</strong> {prescription.notes}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-gray-500 italic text-center">No prescriptions available.</p>
+          )}
         </div>
 
         {prescriptions.length === 0 && (

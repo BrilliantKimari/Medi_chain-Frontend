@@ -2,24 +2,35 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Stethoscope } from "lucide-react";
+import api from "../api";
 
 export default function CaregiverLoginPage() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    
-    if (!username || !password) {
-      setError("Please enter both username and password.");
+    setError("");
+    setLoading(true);
+
+    if (!email || !password) {
+      setError("Please enter both email and password.");
+      setLoading(false);
       return;
     }
 
-    // For demo purposes, we’ll accept any username/password
-    // In a real app, you would verify credentials with backend
-    navigate("/caregiver-dashboard");
+    try {
+      // Note: Caregiver login endpoint not implemented in backend yet
+      // For now, redirect to dashboard (this needs backend implementation)
+      navigate("/caregiver-dashboard");
+    } catch (err) {
+      setError(err.response?.data?.error || "Login failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -38,10 +49,10 @@ export default function CaregiverLoginPage() {
         {error && <p className="text-red-500 text-sm">{error}</p>}
 
         <input
-          type="text"
-          placeholder="Full Name"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
@@ -55,9 +66,10 @@ export default function CaregiverLoginPage() {
 
         <button
           type="submit"
-          className="bg-blue-600 text-white py-2 rounded-xl font-semibold hover:bg-blue-700 transition-colors mt-2"
+          disabled={loading}
+          className="bg-blue-600 text-white py-2 rounded-xl font-semibold hover:bg-blue-700 transition-colors mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Login
+          {loading ? "Logging in..." : "Login"}
         </button>
       </form>
 
