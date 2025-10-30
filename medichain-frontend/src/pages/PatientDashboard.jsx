@@ -224,6 +224,54 @@ export default function PatientDashboard() {
       </div>
     </nav>
 
+    {/* Caregiver Management Section - Below Header */}
+    <div className="bg-white shadow-md px-8 py-4 border-b border-gray-200">
+      <div className="flex items-center justify-between max-w-6xl mx-auto">
+        <h3 className="text-lg font-semibold text-gray-800">Caregiver Management</h3>
+        <div className="flex items-center gap-4">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Caregiver Name"
+              value={newCaregiver.name}
+              onChange={(e) => setNewCaregiver({ ...newCaregiver, name: e.target.value })}
+              className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={newCaregiver.password}
+              onChange={(e) => setNewCaregiver({ ...newCaregiver, password: e.target.value })}
+              className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              onClick={handleAddCaregiver}
+              className="bg-green-600 text-white px-4 py-1 text-sm rounded-md hover:bg-green-700 transition-colors"
+            >
+              Add Caregiver
+            </button>
+          </div>
+          <div className="flex gap-2 max-w-xs overflow-x-auto">
+            {caregivers.length === 0 && <span className="text-gray-500 text-sm">No caregivers added yet.</span>}
+            {caregivers.map((c) => (
+              <div
+                key={c.name}
+                className="flex items-center gap-2 bg-gray-100 px-2 py-1 rounded-md text-sm"
+              >
+                <span className="truncate max-w-20">{c.name}</span>
+                <button
+                  onClick={() => handleDeleteCaregiver(c.name)}
+                  className="text-red-500 hover:text-red-700 text-xs"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+
     {/* Main Content */}
     <div className="flex flex-col flex-grow px-6 py-12">
       {/* Heart Monitor Line */}
@@ -330,54 +378,6 @@ export default function PatientDashboard() {
             Current and historical medication details with dosage and refill information.
           </p>
         </Link>
-      </div>
-
-      {/* Caregiver Management Section */}
-      <div className="mb-12 max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-md">
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">Caregiver Management</h2>
-
-        {/* Add Caregiver Form */}
-        <div className="flex gap-2 mb-4">
-          <input
-            type="text"
-            placeholder="Caregiver Name"
-            value={newCaregiver.name}
-            onChange={(e) => setNewCaregiver({ ...newCaregiver, name: e.target.value })}
-            className="flex-1 px-3 py-2 border rounded-md"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={newCaregiver.password}
-            onChange={(e) => setNewCaregiver({ ...newCaregiver, password: e.target.value })}
-            className="flex-1 px-3 py-2 border rounded-md"
-          />
-          <button
-            onClick={handleAddCaregiver}
-            className="bg-green-600 text-white px-4 rounded-md hover:bg-green-700"
-          >
-            Add
-          </button>
-        </div>
-
-        {/* Caregiver List */}
-        <ul className="space-y-2">
-          {caregivers.length === 0 && <li className="text-gray-500">No caregivers added yet.</li>}
-          {caregivers.map((c) => (
-            <li
-              key={c.name}
-              className="flex justify-between items-center bg-gray-100 px-4 py-2 rounded-md"
-            >
-              <span>{c.name}</span>
-              <button
-                onClick={() => handleDeleteCaregiver(c.name)}
-                className="text-red-500 hover:text-red-700"
-              >
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
       </div>
 
       {/* Health Tip */}
