@@ -54,8 +54,8 @@ export default function AppointmentsPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center py-12 px-6" style={{backgroundImage: 'url("/ChatGPT Image Oct 29, 2025, 04_42_54 PM.png")', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat'}}>
-      <div className="absolute inset-0 bg-white bg-opacity-90"></div>
+    <div className="min-h-screen flex flex-col items-center py-12 px-6" style={{backgroundImage: 'url("/fi2JhRueSBGy5RFEh4w0_appointment.jpg")', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat'}}>
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/30"></div>
       {showMessage && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg z-50">
           {messageText}
@@ -68,10 +68,10 @@ export default function AppointmentsPage() {
       )}
       <div className="relative z-10 w-full flex flex-col items-center">
       {/* Header */}
-      <h1 className="text-4xl font-bold text-blue-700 mb-4 flex items-center gap-3">
+      <h1 className="text-4xl font-bold text-white mb-4 flex items-center gap-3">
         <CalendarDays size={40} /> Appointments
       </h1>
-      <p className="text-gray-600 mb-8 text-center max-w-lg">
+      <p className="text-white mb-8 text-center max-w-lg">
         Schedule your next hospital visits and manage all your appointments conveniently in one place.
       </p>
 
@@ -145,7 +145,7 @@ export default function AppointmentsPage() {
       {/* Back to Dashboard */}
       <Link
         to="/patient-dashboard"
-        className="mt-10 text-blue-600 hover:underline font-medium"
+        className="mt-10 text-white hover:underline font-medium"
       >
         ← Back to Dashboard
       </Link>
