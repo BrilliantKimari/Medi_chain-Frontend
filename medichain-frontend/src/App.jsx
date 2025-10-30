@@ -10,6 +10,8 @@ import MedicalRecords from "./pages/MedicalRecords";
 import AppointmentsPage from "./pages/AppointmentsPage";
 import EmergencyInfo from "./pages/EmergencyInfo";
 import EmergencyInfoLandingPage from "./pages/EmergencyInfoLoadingPage";
+import CaregiverLoginPage from "./pages/CaregiverLoginPage";
+import CaregiverDashboard from "./pages/CaregiverDashboard";
 
 export default function App() {
   return (
@@ -26,6 +28,8 @@ export default function App() {
         <Route path="/appointments" element={<AppointmentsPage />} />
         <Route path="/emergency-info" element={<EmergencyInfo />} />
         <Route path="/emergency-info/:patientId" element={<EmergencyInfoLandingPage />} />
+        <Route path="/caregiver-login" element={<CaregiverLoginPage />} />
+        <Route path="/caregiver-dashboard" element={<CaregiverDashboard />} />
       </Routes>
     </Router>
   );
