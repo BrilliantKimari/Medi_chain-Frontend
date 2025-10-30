@@ -212,6 +212,9 @@ export default function PatientDashboard() {
         <Link to="/patient-management" className="text-white hover:text-blue-200 transition-colors font-medium">
           Management
         </Link>
+        <Link to="/prescriptions" className="text-white hover:text-blue-200 transition-colors font-medium">
+          Prescriptions
+        </Link>
         <Link to="/" className="text-white hover:text-blue-200 transition-colors font-medium">
           Return Home
         </Link>
@@ -265,7 +268,7 @@ export default function PatientDashboard() {
       </div>
 
       {/* Main Actions */}
-      <div className="grid gap-8 md:grid-cols-4 w-full max-w-6xl mx-auto mb-12">
+      <div className="grid gap-8 md:grid-cols-5 w-full max-w-6xl mx-auto mb-12">
         {/* Emergency Info */}
         <Link 
          to="/emergency-info"
@@ -317,7 +320,7 @@ export default function PatientDashboard() {
         {/* Prescriptions */}
         <Link
           to="/prescriptions"
-          className="group flex flex-col items-center bg-gradient-to-br from-green-500 to-green-600 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all text-white"
+          className="group flex flex-col items-center bg-gradient-to-br from-orange-500 to-orange-600 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all text-white"
         >
           <Pill size={56} className="mb-4 group-hover:animate-pulse" />
           <h3 className="text-2xl font-bold mb-3">
