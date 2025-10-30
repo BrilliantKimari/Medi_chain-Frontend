@@ -1,6 +1,7 @@
 // src/pages/CaregiverLoginPage.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Stethoscope } from "lucide-react";
 
 export default function CaregiverLoginPage() {
   const navigate = useNavigate();
@@ -10,54 +11,60 @@ export default function CaregiverLoginPage() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-
-    // For now, simple validation
+    
     if (!username || !password) {
       setError("Please enter both username and password.");
       return;
     }
 
-    // TODO: Replace with real authentication logic
-    // For demonstration, any input works
+    // For demo purposes, we’ll accept any username/password
+    // In a real app, you would verify credentials with backend
     navigate("/caregiver-dashboard");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50">
-      <div className="bg-white p-10 rounded-xl shadow-xl w-full max-w-md">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Caregiver Login</h2>
-        {error && (
-          <p className="bg-red-100 text-red-700 p-2 rounded mb-4 text-center">{error}</p>
-        )}
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-gray-700 mb-1">Full Name</label>
-            <input
-              type="text"
-              placeholder="Enter Full Name"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 mb-1">Password</label>
-            <input
-              type="password"
-              placeholder="Enter password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-400"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 transition-colors"
-          >
-            Login
-          </button>
-        </form>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col justify-center items-center">
+      {/* Header */}
+      <div className="flex items-center mb-12">
+        <Stethoscope className="text-blue-600 mr-3" size={40} />
+        <h1 className="text-3xl font-bold text-gray-800">Caregiver Login</h1>
       </div>
+
+      {/* Login Form */}
+      <form 
+        onSubmit={handleLogin} 
+        className="bg-white p-10 rounded-2xl shadow-lg w-full max-w-md flex flex-col gap-4"
+      >
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+
+        <input
+          type="text"
+          placeholder="Full Name"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+
+        <button
+          type="submit"
+          className="bg-blue-600 text-white py-2 rounded-xl font-semibold hover:bg-blue-700 transition-colors mt-2"
+        >
+          Login
+        </button>
+      </form>
+
+      {/* Footer */}
+      <footer className="mt-12 text-center text-gray-500 text-sm">
+        © 2025 MediChain. All rights reserved.
+      </footer>
     </div>
   );
 }

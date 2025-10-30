@@ -1,9 +1,9 @@
-// src/pages/CaregiverDashboard.jsx
+// src/pages/CaregiverLandingPage.jsx
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FileText, CalendarDays, Heart, Stethoscope, Pill } from "lucide-react";
+import { Stethoscope, Pill, CalendarDays, Heart } from "lucide-react";
 
-const healthTips = [
+const caregiverTips = [
   "Check patient prescriptions daily for accuracy.",
   "Ensure patients attend scheduled appointments.",
   "Monitor patient adherence to medication plans.",
@@ -11,12 +11,12 @@ const healthTips = [
   "Keep communication open with patients and families.",
 ];
 
-export default function CaregiverDashboard() {
+export default function CaregiverLandingPage() {
   const [currentTip, setCurrentTip] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentTip((prevTip) => (prevTip + 1) % healthTips.length);
+      setCurrentTip((prevTip) => (prevTip + 1) % caregiverTips.length);
     }, 10000); // Change tip every 10 seconds
     return () => clearInterval(interval);
   }, []);
@@ -27,7 +27,7 @@ export default function CaregiverDashboard() {
       <nav className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white px-8 py-4 flex justify-between items-center shadow-lg">
         <div className="flex items-center space-x-4">
           <Stethoscope className="text-white" size={32} />
-          <h1 className="text-2xl font-bold text-white">Caregiver Dashboard</h1>
+          <h1 className="text-2xl font-bold text-white">Caregiver Portal</h1>
         </div>
         <div className="flex space-x-6">
           <Link to="/caregiver-login" className="text-red-300 hover:text-red-100 font-medium">
@@ -71,11 +71,11 @@ export default function CaregiverDashboard() {
         </Link>
       </div>
 
-      {/* Health Tip */}
+      {/* Caregiver Tip */}
       <div className="w-full max-w-4xl mx-auto mb-12">
         <div className="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-xl border-l-4 border-yellow-500">
           <h4 className="text-lg font-semibold text-gray-800 mb-2">💡 Caregiver Tip of the Day</h4>
-          <p className="text-gray-700">{healthTips[currentTip]}</p>
+          <p className="text-gray-700">{caregiverTips[currentTip]}</p>
         </div>
       </div>
 
